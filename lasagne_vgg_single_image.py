@@ -70,9 +70,10 @@ MEAN_IMAGE = pretrained_model['mean value'] # this is  [103.939, 116.779, 123.68
 MEAN_IMAGE = MEAN_IMAGE.reshape([3,1,1])
 # MEAN_IMAGE = pretrained_model_2['mean image'] # this is (3,224,224)
 
-def prep_image(url):
-	ext = url.split('.')[-1]
-	im = plt.imread(io.BytesIO(urllib.urlopen(url).read()), ext)
+def prep_image(filepath):
+	# ext = url.split('.')[-1]
+	# im = plt.imread(io.BytesIO(urllib.urlopen(url).read()), ext)
+	im = plt.imread(filepath)
 	# Resize so smallest dim = 256, preserving aspect ratio
 	h, w, _ = im.shape
 	if h < w:
@@ -92,10 +93,7 @@ def prep_image(url):
 
 import urllib
 
-index = urllib.urlopen('http://www.image-net.org/challenges/LSVRC/2012/ori_urls/indexval.html').read()
-image_urls = index.split('<br>')
-
-rawim, im = prep_image(image_urls[0])
+rawim, im = prep_image('/home/nvidia/data/wire_test.png')
 
 prob = np.array(lasagne.layers.get_output(output_layer, im, deterministic=True).eval())
 prob = np.array(lasagne.layers.get_output(net['conv1_1'], im, deterministic=True).eval())

@@ -22,15 +22,19 @@ import torch.nn as nn
 
 # torch.save(vgg_torch_caffe, "/home/nvidia/cnn_weights/pytorch/vgg16-00b39a1b.pth")
 
+print "loading model"
 vgg16 = models.vgg16(pretrained=False)
 vgg16.load_state_dict(torch.load('/home/nvidia/cnn_weights/pytorch/vgg16-00b39a1b.pth'))
+print "done"
+
 
 MEAN_IMAGE = np.array([103.939, 116.779, 123.68])
 MEAN_IMAGE = MEAN_IMAGE.reshape([3,1,1])
 
-def prep_image(url):
-	ext = url.split('.')[-1]
-	im = plt.imread(io.BytesIO(urllib.urlopen(url).read()), ext)
+def prep_image(filepath):
+	# ext = url.split('.')[-1]
+	# im = plt.imread(io.BytesIO(urllib.urlopen(url).read()), ext)
+	im = plt.imread(filepath)
 	# Resize so smallest dim = 256, preserving aspect ratio
 	h, w, _ = im.shape
 	if h < w:
@@ -51,12 +55,9 @@ def prep_image(url):
 	x = x.contiguous()
 	return x
 
-import urllib
-
-index = urllib.urlopen('http://www.image-net.org/challenges/LSVRC/2012/ori_urls/indexval.html').read()
-image_urls = index.split('<br>')
-
-x = prep_image(image_urls[1])
+print "image preproc begin"
+x = prep_image('/home/nvidia/data/wire_test.png')
+print "image preproc done"
 
 # model.features
 # Sequential (
@@ -94,7 +95,8 @@ x = prep_image(image_urls[1])
 # )
 
 # model = vgg16.cuda()
-model_bla = nn.Sequential(*list(model.features)[:4])
+model = nn.Sequential(*list(vgg16.features)[:2])
+model.cuda()
 x_to_pass = Variable(x.cuda(), volatile=True)
 x_to_pass = x_to_pass.unsqueeze(0)
 
